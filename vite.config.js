@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { readFileSync, existsSync, renameSync } from 'fs';
 import { createHash } from 'crypto';
 import path from 'path';
+import { minify } from 'html-minifier-terser';
 
 export default defineConfig(({ mode }) => {
   // 환경 변수에 따른 빌드 설정
@@ -127,6 +128,56 @@ export default defineConfig(({ mode }) => {
     
     // 플러그인
     plugins: [
+      {
+        name: 'html-minifier',
+        transformIndexHtml: {
+          order: 'post',
+          handler: async (html, ctx) => {
+            // HTML 압축 옵션
+            const minifyOptions = {
+              collapseWhitespace: true,        // 공백 제거
+              removeComments: true,            // 주석 제거
+              removeRedundantAttributes: true, // 중복 속성 제거
+              removeScriptTypeAttributes: true, // script type 속성 제거
+              removeStyleLinkTypeAttributes: true, // style/link type 속성 제거
+              useShortDoctype: true,           // 짧은 DOCTYPE 사용
+              minifyCSS: true,                 // 인라인 CSS 압축
+              minifyJS: true,                  // 인라인 JS 압축
+              removeAttributeQuotes: false,    // 속성 따옴표 유지 (안전성)
+              removeEmptyAttributes: true,     // 빈 속성 제거
+              removeOptionalTags: false,       // 선택적 태그 제거 안함 (안전성)
+              removeTagWhitespace: true,       // 태그 간 공백 제거
+              sortAttributes: false,           // 속성 정렬 안함
+              sortClassName: false,            // 클래스명 정렬 안함
+              trimCustomFragments: true,       // 커스텀 프래그먼트 정리
+              processConditionalComments: true // 조건부 주석 처리
+            };
+            
+            try {
+              // html-minifier-terser를 사용한 HTML 압축
+              const minifiedHtml = await minify(html, minifyOptions);
+              return minifiedHtml;
+            } catch (error) {
+              console.warn('HTML minification failed, using fallback:', error.message);
+              
+              // 폴백: 간단한 HTML 압축
+              return html
+                .replace(/\s+/g, ' ')           // 연속된 공백을 하나로
+                .replace(/>\s+</g, '><')        // 태그 간 공백 제거
+                .replace(/\s+>/g, '>')          // 태그 앞 공백 제거
+                .replace(/<\s+/g, '<')          // 태그 뒤 공백 제거
+                .replace(/\s+\/>/g, '/>')       // 자체 닫힘 태그 공백 제거
+                .replace(/\/>\s+/g, '/>')       // 자체 닫힘 태그 뒤 공백 제거
+                .replace(/\s+<!--/g, '<!--')    // 주석 앞 공백 제거
+                .replace(/-->\s+/g, '-->')      // 주석 뒤 공백 제거
+                .replace(/\s+$/gm, '')          // 줄 끝 공백 제거
+                .replace(/^\s+/gm, '')          // 줄 시작 공백 제거
+                .replace(/\n\s*\n/g, '\n')      // 빈 줄 제거
+                .trim();                        // 앞뒤 공백 제거
+            }
+          }
+        }
+      },
       {
         name: 'move-css-files',
         writeBundle(options, bundle) {
