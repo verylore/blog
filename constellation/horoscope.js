@@ -344,7 +344,7 @@ btnReroll.addEventListener('click', () => {
 btnShare.addEventListener('click', async () => {
   if (!current) return;
   const colorText = current.colorName || current.color || '미정';
-  const text = `오늘의 ${current.signKo} 운세 (${current.date})\n총운 ${current.luck}점 · 럭키컬러 ${colorText} · 럭키넘버 ${current.number}\n한 줄 조언: ${current.tip}`;
+  const text = `오늘의 ${current.signKo} 운세 (${current.date})\n총운 ${current.luck}점 · 행운을 가져다주는 색  ${colorText} · 행운의 숫자 ${current.number}\n한 줄 조언: ${current.tip}`;
   try {
     if (navigator.share) {
       await navigator.share({ title: '오늘의 별자리 운세', text });
@@ -367,12 +367,12 @@ btnCopyColor.addEventListener('click', async () => {
     } else if (current.color) {
       copyText = current.color;
     } else {
-      copyText = '럭키컬러 정보 없음';
+      copyText = '행운을 가져다주는 색  정보 없음';
     }
     await navigator.clipboard.writeText(copyText);
-    alert('럭키컬러가 복사되었습니다.');
+    alert('행운을 가져다주는 색 가 복사되었습니다.');
   } catch(e) {
-    alert('복사 권한이 거부되어 럭키컬러를 선택해 직접 복사하세요.');
+    alert('복사 권한이 거부되어 행운을 가져다주는 색 를 선택해 직접 복사하세요.');
   }
 });
 

@@ -7,7 +7,8 @@ import { minify } from 'html-minifier-terser';
 export default defineConfig(({ mode }) => {
   // 환경 변수에 따른 빌드 설정
   const buildTarget = mode === 'constellation' ? 'constellation' : 
-                     mode === 'fortune' ? 'fortune' : 'all';
+                     mode === 'fortune' ? 'fortune' : 
+                     mode === 'zodiac' ? 'zodiac' : 'all';
   
   // 빌드할 입력 파일들을 결정
   const buildInputs = {};
@@ -20,6 +21,10 @@ export default defineConfig(({ mode }) => {
     buildInputs['fortune/fortune'] = 'fortune/fortune.html';
   }
   
+  if (buildTarget === 'all' || buildTarget === 'zodiac') {
+    buildInputs['zodiac/zodiac'] = 'zodiac/zodiac.html';
+  }
+  
   // 빌드할 JSON 파일들을 결정
   const jsonFiles = [];
   if (buildTarget === 'all' || buildTarget === 'constellation') {
@@ -27,6 +32,9 @@ export default defineConfig(({ mode }) => {
   }
   if (buildTarget === 'all' || buildTarget === 'fortune') {
     jsonFiles.push('fortune');
+  }
+  if (buildTarget === 'all' || buildTarget === 'zodiac') {
+    jsonFiles.push('zodiac');
   }
 
   return {
@@ -84,6 +92,8 @@ export default defineConfig(({ mode }) => {
               return 'constellation/horoscope-[hash].min.js';
             } else if (chunkInfo.name === 'fortune/fortune') {
               return 'fortune/fortune-[hash].min.js';
+            } else if (chunkInfo.name === 'zodiac/zodiac') {
+              return 'zodiac/zodiac-[hash].min.js';
             }
             return '[name]-[hash].min.js';
           },
@@ -96,6 +106,8 @@ export default defineConfig(({ mode }) => {
               return 'constellation/constellation.html';
             } else if (name.includes('fortune.html')) {
               return 'fortune/fortune.html';
+            } else if (name.includes('zodiac.html')) {
+              return 'zodiac/zodiac.html';
             }
             
             // CSS 파일을 각 폴더에 배치
@@ -103,6 +115,8 @@ export default defineConfig(({ mode }) => {
               return 'constellation/horoscope-[hash].min.css';
             } else if (name === 'fortune.css') {
               return 'fortune/fortune-[hash].min.css';
+            } else if (name === 'zodiac.css') {
+              return 'zodiac/zodiac-[hash].min.css';
             }
             
             // 기타 CSS 파일들도 적절한 폴더에 배치
@@ -111,6 +125,8 @@ export default defineConfig(({ mode }) => {
                 return 'constellation/[name]-[hash].min.css';
               } else if (name.includes('fortune')) {
                 return 'fortune/[name]-[hash].min.css';
+              } else if (name.includes('zodiac')) {
+                return 'zodiac/[name]-[hash].min.css';
               }
             }
             
@@ -226,6 +242,14 @@ export default defineConfig(({ mode }) => {
                   console.log(`Moved ${fileName} to fortune/`);
                 }
               }
+              
+              if (fileName.includes('zodiac') && !fileName.startsWith('zodiac/')) {
+                const newPath = path.join(options.dir, 'zodiac', path.basename(fileName));
+                if (existsSync(fullPath)) {
+                  renameSync(fullPath, newPath);
+                  console.log(`Moved ${fileName} to zodiac/`);
+                }
+              }
             }
           });
         }
@@ -325,6 +349,53 @@ export default defineConfig(({ mode }) => {
             this.emitFile({
               type: 'asset',
               fileName: 'fortune/build-timestamp.txt',
+              source: timestamp.toString()
+            });
+          }
+          
+          // Zodiac JSON 처리
+          if (jsonFiles.includes('zodiac')) {
+            const zodiacJsonContent = readFileSync('zodiac/zodiac-data.json', 'utf8');
+            const zodiacHash = createHash('md5').update(zodiacJsonContent).digest('hex').slice(0, 8);
+            const zodiacHashedFileName = `zodiac-data-${zodiacHash}.json`;
+            
+            this.emitFile({
+              type: 'asset',
+              fileName: `zodiac/${zodiacHashedFileName}`,
+              source: zodiacJsonContent
+            });
+            
+            const zodiacManifest = {
+              "zodiac-data.json": zodiacHashedFileName,
+              "timestamp": timestamp,
+              "version": zodiacHash
+            };
+            
+            const zodiacManifestContent = JSON.stringify(zodiacManifest, null, 2);
+            const zodiacManifestHash = createHash('md5').update(zodiacManifestContent).digest('hex').slice(0, 8);
+            
+            this.emitFile({
+              type: 'asset',
+              fileName: `zodiac/manifest-${zodiacManifestHash}.json`,
+              source: zodiacManifestContent
+            });
+            
+            const zodiacManifestInfo = {
+              "manifest": `manifest-${zodiacManifestHash}.json`,
+              "data": zodiacHashedFileName,
+              "timestamp": timestamp,
+              "version": zodiacManifestHash
+            };
+            
+            this.emitFile({
+              type: 'asset',
+              fileName: `zodiac/build-${timestamp}.json`,
+              source: JSON.stringify(zodiacManifestInfo, null, 2)
+            });
+            
+            this.emitFile({
+              type: 'asset',
+              fileName: 'zodiac/build-timestamp.txt',
               source: timestamp.toString()
             });
           }

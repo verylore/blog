@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:constellation": "vite build --mode constellation",
     "build:fortune": "vite build --mode fortune",
+    "build:zodiac": "vite build --mode zodiac",
     "preview": "vite preview",
     "serve": "vite preview --port 3000"
   },

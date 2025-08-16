@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>오늘의 별자리 운세</title>
-  <meta name="description" content="12별자리 오늘의 운세를 간단하게 확인해보세요. 사랑/일/금전/건강 운세와 행운을 가져다주는 색 , 행운의 숫자를 제공합니다.">
-  <link rel="stylesheet" href="./horoscope.css">
+  <title>띠별운세</title>
+  <meta name="description" content="12띠별 생년월일에 따른 운세를 간단하게 확인해보세요. 각 띠별 생년월일에 맞는 운세와 행운을 가져다주는 색 , 행운의 숫자를 제공합니다.">
+  <link rel="stylesheet" href="./zodiac.css">
 </head>
 <body>
   <!-- 배경 시각 효과 -->
@@ -80,32 +80,23 @@
   <div class="random-star star-large" style="top: 92%; left: 75%; animation-delay: 0.3s;"></div>
   <div class="random-star star-medium" style="top: 2%; left: 25%; animation-delay: 1.6s;"></div>
   <div class="random-star star-small" style="top: 12%; left: 65%; animation-delay: 2.8s;"></div>
-    <div class="star star-5 small"></div>
-    <div class="star star-6 small"></div>
-    <div class="star star-7 small"></div>
-    <div class="star star-8 small"></div>
-    <div class="constellation-line line-1"></div>
-    <div class="constellation-line line-2"></div>
-    <div class="constellation-line line-3"></div>
-    <div class="constellation-line line-4"></div>
-  </div>
-  
-  <div class="zodiac-constellation zodiac-virgo" style="top: 50%; right: 15%; animation-delay: 2.5s;">
-    <div class="star star-1 large"></div>
-    <div class="star star-2 medium"></div>
-    <div class="star star-3 medium"></div>
-    <div class="star star-4 small"></div>
 
   <header>
-    <h1 id="header-title">오늘의 별자리 운세</h1>
-    <p>클릭 한 번으로 내 별자리운세를 완벽 분석해 드립니다! 궁금증은 깔끔하게 해결하고, 특별한 하루를 지금 시작하세요</p>
+    <h1 id="header-title">띠별운세</h1>
+    <p>생년월일에 따른 띠별운세를 확인해보세요! 각 띠별 생년월일에 맞는 운세와 행운을 가져다주는 색 , 행운의 숫자를 제공합니다</p>
   </header>
 
   <main class="wrap">
-    <!-- 별자리 선택 -->
-    <section aria-labelledby="signs-title">
-      <h2 id="signs-title" class="sr-only">별자리 선택</h2>
-      <div id="sign-grid" class="grid"></div>
+    <!-- 띠별 선택 -->
+    <section aria-labelledby="zodiac-title">
+      <h2 id="zodiac-title" class="sr-only">띠별 선택</h2>
+      <div id="zodiac-grid" class="grid"></div>
+    </section>
+
+    <!-- 생년월일 선택 -->
+    <section id="year-selection" class="card" aria-labelledby="year-title" hidden>
+      <h2 id="year-title">생년월일 선택</h2>
+      <div id="year-grid" class="year-grid"></div>
     </section>
 
     <!-- 결과 카드 -->
@@ -113,10 +104,10 @@
       <div class="result">
         <div class="hdr">
           <div class="who">
-            <div class="ico lg" id="res-ico">♈</div>
+            <div class="ico lg" id="res-ico">🐭</div>
             <div>
-              <div id="res-title" style="font-weight:800; font-size:18px;">양자리</div>
-              <div class="badge" id="res-period">3.21~4.19</div>
+              <div id="res-title" style="font-weight:800; font-size:18px;">쥐띠</div>
+              <div class="badge" id="res-year">2008년생</div>
               <div style="font-size:12px; color: var(--muted); margin-top:2px;" id="res-date">2025-08-15</div>
             </div>
           </div>
@@ -129,11 +120,8 @@
               <div class="pill">행운을 가져다주는 색  <span class="chip" id="res-color-chip" style="background: #25D0A9;"></span><span id="res-color-text">터쿠아즈</span></div>
               <div class="pill">행운의 숫자 <strong id="res-number" style="margin-left:6px;">7</strong></div>
             </div>
-            <div class="kvs">
-              <div class="kv"><h4><span class="kv-icon">💕</span>사랑</h4><p id="res-love">…</p></div>
-              <div class="kv"><h4><span class="kv-icon">💼</span>일</h4><p id="res-work">…</p></div>
-              <div class="kv"><h4><span class="kv-icon">💰</span>금전</h4><p id="res-money">…</p></div>
-              <div class="kv"><h4><span class="kv-icon">🌿</span>건강</h4><p id="res-health">…</p></div>
+            <div class="fortune-content">
+              <div class="kv"><h4><span class="kv-icon">🌟</span>오늘의 운세</h4><p id="res-fortune">…</p></div>
             </div>
           </div>
 
@@ -141,19 +129,17 @@
             <div style="font-weight:700;">한 줄 조언</div>
             <div id="res-tip" style="line-height:1.7;">…</div>
             <div class="cta">
-              <button class="btn" id="btn-reroll">다시 뽑기</button>
               <button class="btn ghost" id="btn-share">공유</button>
               <button class="btn ghost" id="btn-copy-color">행운을 가져다주는 색  복사</button>
             </div>
-            <div class="muted">같은 날 같은 별자리는 기본적으로 동일한 결과가 표시됩니다.</div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer>© <span id="year"></span> 오늘의 별자리</footer>
+  <footer>© <span id="year"></span> 띠별운세</footer>
 
-  <script type="module" src="./horoscope.js"></script>
+  <script type="module" src="./zodiac.js"></script>
 </body>
 </html>
