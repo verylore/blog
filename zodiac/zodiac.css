@@ -169,6 +169,12 @@ header p {
   margin-bottom: 2rem;
 }
 
+.inside-article {
+  background-color: unset !important;
+}
+
+.site-header {display:none !important;}
+
 /* 띠별 카드 */
 .zodiac-card {
   background: var(--card);
