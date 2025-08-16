@@ -221,8 +221,24 @@ const btnReroll = document.getElementById('btn-reroll');
 const btnShare = document.getElementById('btn-share');
 const btnCopyColor = document.getElementById('btn-copy-color');
 const yearEl = document.getElementById('year');
+const headerTitleEl = document.getElementById('header-title');
 
 yearEl.textContent = new Date().getFullYear();
+
+// 오늘 날짜를 헤더에 표시
+function updateHeaderTitle() {
+  const today = new Date();
+  const options = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    weekday: 'long'
+  };
+  const dateStr = today.toLocaleDateString('ko-KR', options);
+  headerTitleEl.textContent = `${dateStr} 오늘의 별자리 운세`;
+}
+
+updateHeaderTitle();
 
 function buildGrid() {
   console.log('buildGrid 시작', signGrid);
