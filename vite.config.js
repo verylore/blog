@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, renameSync } from 'fs';
 import { createHash } from 'crypto';
+import path from 'path';
 
 export default defineConfig({
   // 개발 서버 설정
@@ -49,22 +50,39 @@ export default defineConfig({
     // 롤업 옵션
     rollupOptions: {
       input: {
-        'constellation/constellation': 'constellation/constellation.html'
+        'constellation/constellation': 'constellation/constellation.html',
+        'fortune/fortune': 'fortune/fortune.html'
       },
       external: [],
       output: {
-        // 파일들을 constellation 폴더에 배치 (해시코드 포함)
+        // 파일들을 각 폴더에 배치 (해시코드 포함)
         entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'constellation/constellation' 
-            ? 'constellation/horoscope-[hash].min.js' 
-            : 'constellation/[name]-[hash].min.js';
-        },
-        chunkFileNames: 'constellation/[name]-[hash].min.js', 
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'horoscope.css') {
-            return 'constellation/horoscope-[hash].min.css';
+          if (chunkInfo.name === 'constellation/constellation') {
+            return 'constellation/horoscope-[hash].min.js';
+          } else if (chunkInfo.name === 'fortune/fortune') {
+            return 'fortune/fortune-[hash].min.js';
           }
-          return `constellation/[name]-[hash].[ext]`;
+          return '[name]-[hash].min.js';
+        },
+        chunkFileNames: '[name]-[hash].min.js', 
+        assetFileNames: (assetInfo) => {
+          const name = assetInfo.name || '';
+          
+          // HTML 파일 처리
+          if (name.includes('constellation.html')) {
+            return 'constellation/constellation.html';
+          } else if (name.includes('fortune.html')) {
+            return 'fortune/fortune.html';
+          }
+          
+          // CSS 파일은 빌드 후 수동으로 이동하거나 각 폴더에 배치
+          if (name === 'horoscope.css') {
+            return 'constellation/horoscope-[hash].min.css';
+          } else if (name === 'fortune.css') {
+            return 'fortune/fortune-[hash].min.css';
+          }
+          
+          return `[name]-[hash].[ext]`;
         },
         
         // 코드 분할 (JSON 파일 제외)
@@ -73,7 +91,10 @@ export default defineConfig({
     },
     
     // 자산 인라인 임계값 (작은 파일들은 인라인으로)
-    assetsInlineLimit: 4096
+    assetsInlineLimit: 4096,
+    
+    // 모듈 프리로드 비활성화 (단순한 프로젝트이므로 불필요)
+    modulePreload: false
   },
   
   // 공용 디렉토리
@@ -85,57 +106,124 @@ export default defineConfig({
   // 플러그인
   plugins: [
     {
+      name: 'move-css-files',
+      writeBundle(options, bundle) {
+        // CSS 파일들을 적절한 폴더로 이동
+        Object.keys(bundle).forEach(fileName => {
+          if (fileName.endsWith('.css')) {
+            const fullPath = path.join(options.dir, fileName);
+            
+            if (fileName.includes('constellation') && !fileName.startsWith('constellation/')) {
+              const newPath = path.join(options.dir, 'constellation', path.basename(fileName));
+              if (existsSync(fullPath)) {
+                renameSync(fullPath, newPath);
+                console.log(`Moved ${fileName} to constellation/`);
+              }
+            }
+            
+            if (fileName.includes('fortune') && !fileName.startsWith('fortune/')) {
+              const newPath = path.join(options.dir, 'fortune', path.basename(fileName));
+              if (existsSync(fullPath)) {
+                renameSync(fullPath, newPath);
+                console.log(`Moved ${fileName} to fortune/`);
+              }
+            }
+          }
+        });
+      }
+    },
+    {
       name: 'copy-json-with-manifest',
       generateBundle() {
-        // JSON 파일을 빌드 출력에 포함 (해시코드 생성)
-        const jsonContent = readFileSync('constellation/horoscope-data.json', 'utf8');
-        const hash = createHash('md5').update(jsonContent).digest('hex').slice(0, 8);
-        const hashedFileName = `horoscope-data-${hash}.json`;
+        const timestamp = Date.now();
         
-        // JSON 파일 생성
+        // Constellation JSON 처리
+        const constellationJsonContent = readFileSync('constellation/horoscope-data.json', 'utf8');
+        const constellationHash = createHash('md5').update(constellationJsonContent).digest('hex').slice(0, 8);
+        const constellationHashedFileName = `horoscope-data-${constellationHash}.json`;
+        
         this.emitFile({
           type: 'asset',
-          fileName: `constellation/${hashedFileName}`,
-          source: jsonContent
+          fileName: `constellation/${constellationHashedFileName}`,
+          source: constellationJsonContent
         });
         
-        // 매니페스트 파일 생성 (파일명 매핑 정보 + 타임스탬프)
-        const timestamp = Date.now();
-        const manifest = {
-          "horoscope-data.json": hashedFileName,
+        const constellationManifest = {
+          "horoscope-data.json": constellationHashedFileName,
           "timestamp": timestamp,
-          "version": hash // JSON 해시를 버전으로 사용
+          "version": constellationHash
         };
         
-        // 매니페스트 파일도 해시 포함
-        const manifestContent = JSON.stringify(manifest, null, 2);
-        const manifestHash = createHash('md5').update(manifestContent).digest('hex').slice(0, 8);
+        const constellationManifestContent = JSON.stringify(constellationManifest, null, 2);
+        const constellationManifestHash = createHash('md5').update(constellationManifestContent).digest('hex').slice(0, 8);
         
         this.emitFile({
           type: 'asset',
-          fileName: `constellation/manifest-${manifestHash}.json`,
-          source: manifestContent
+          fileName: `constellation/manifest-${constellationManifestHash}.json`,
+          source: constellationManifestContent
         });
         
-                      // 타임스탬프를 파일명에 직접 포함하여 완전한 캐시 무효화
-              const manifestInfo = {
-                "manifest": `manifest-${manifestHash}.json`,
-                "data": hashedFileName,
-                "timestamp": timestamp,
-                "version": manifestHash
-              };
-              
-              // 타임스탬프를 파일명에 포함하여 고정 파일 제거
-              this.emitFile({
-                type: 'asset',
-                fileName: `constellation/build-${timestamp}.json`,
-                source: JSON.stringify(manifestInfo, null, 2)
-              });
+        const constellationManifestInfo = {
+          "manifest": `manifest-${constellationManifestHash}.json`,
+          "data": constellationHashedFileName,
+          "timestamp": timestamp,
+          "version": constellationManifestHash
+        };
         
-        // 현재 빌드의 타임스탬프를 기록하는 간단한 텍스트 파일
+        this.emitFile({
+          type: 'asset',
+          fileName: `constellation/build-${timestamp}.json`,
+          source: JSON.stringify(constellationManifestInfo, null, 2)
+        });
+        
         this.emitFile({
           type: 'asset',
           fileName: 'constellation/build-timestamp.txt',
+          source: timestamp.toString()
+        });
+        
+        // Fortune JSON 처리
+        const fortuneJsonContent = readFileSync('fortune/fortune-data.json', 'utf8');
+        const fortuneHash = createHash('md5').update(fortuneJsonContent).digest('hex').slice(0, 8);
+        const fortuneHashedFileName = `fortune-data-${fortuneHash}.json`;
+        
+        this.emitFile({
+          type: 'asset',
+          fileName: `fortune/${fortuneHashedFileName}`,
+          source: fortuneJsonContent
+        });
+        
+        const fortuneManifest = {
+          "fortune-data.json": fortuneHashedFileName,
+          "timestamp": timestamp,
+          "version": fortuneHash
+        };
+        
+        const fortuneManifestContent = JSON.stringify(fortuneManifest, null, 2);
+        const fortuneManifestHash = createHash('md5').update(fortuneManifestContent).digest('hex').slice(0, 8);
+        
+        this.emitFile({
+          type: 'asset',
+          fileName: `fortune/manifest-${fortuneManifestHash}.json`,
+          source: fortuneManifestContent
+        });
+        
+        const fortuneManifestInfo = {
+          "manifest": `manifest-${fortuneManifestHash}.json`,
+          "data": fortuneHashedFileName,
+          "timestamp": timestamp,
+          "version": fortuneManifestHash
+        };
+        
+        this.emitFile({
+          type: 'asset',
+          fileName: `fortune/build-${timestamp}.json`,
+          source: JSON.stringify(fortuneManifestInfo, null, 2)
+        });
+        
+        this.emitFile({
+          type: 'asset',
+          fileName: 'fortune/build-timestamp.txt',
           source: timestamp.toString()
         });
       }

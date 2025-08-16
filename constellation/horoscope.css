@@ -21,7 +21,7 @@
   top: -10px;
   width: 2px;
   height: 60px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+  background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
   border-radius: 2px;
   animation: shootingStar 4s linear infinite;
   z-index: -1;
