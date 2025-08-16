@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>오늘의 별자리 운세</title>
+  <meta name="description" content="12별자리 오늘의 운세를 간단하게 확인해보세요. 사랑/일/금전/건강 운세와 럭키컬러, 럭키넘버를 제공합니다.">
+  <script type="module" crossorigin src="../constellation/horoscope-BQW8TCqu.min.js"></script>
+  <link rel="stylesheet" crossorigin href="../constellation-DBHaVoV5.css">
+</head>
+<body>
+  <!-- 배경 시각 효과 -->
+  <!-- 별똥별들 -->
+  <div class="shooting-star" style="animation-delay: 0s;"></div>
+  <div class="shooting-star" style="animation-delay: 1.5s; right: 15%;"></div>
+  <div class="shooting-star" style="animation-delay: 3s; right: 30%;"></div>
+  <div class="shooting-star" style="animation-delay: 4.5s; right: 45%;"></div>
+  <div class="shooting-star" style="animation-delay: 6s; right: 60%;"></div>
+  <div class="shooting-star" style="animation-delay: 7.5s; right: 75%;"></div>
+  <div class="shooting-star" style="animation-delay: 9s; right: 10%;"></div>
+  <div class="shooting-star" style="animation-delay: 10.5s; right: 85%;"></div>
+  
+  <!-- 반짝이는 별들 -->
+  <div class="sparkle" style="top: 15%; left: 10%; animation-delay: 0s;"></div>
+  <div class="sparkle" style="top: 25%; left: 85%; animation-delay: 1s;"></div>
+  <div class="sparkle" style="top: 45%; left: 15%; animation-delay: 2s;"></div>
+  <div class="sparkle" style="top: 65%; left: 75%; animation-delay: 3s;"></div>
+  <div class="sparkle" style="top: 80%; left: 30%; animation-delay: 1.5s;"></div>
+  <div class="sparkle" style="top: 35%; left: 50%; animation-delay: 2.5s;"></div>
+  <div class="sparkle" style="top: 10%; left: 40%; animation-delay: 0.8s;"></div>
+  <div class="sparkle" style="top: 20%; left: 60%; animation-delay: 3.2s;"></div>
+  <div class="sparkle" style="top: 55%; left: 25%; animation-delay: 1.8s;"></div>
+  <div class="sparkle" style="top: 70%; left: 90%; animation-delay: 2.8s;"></div>
+  <div class="sparkle" style="top: 90%; left: 65%; animation-delay: 0.5s;"></div>
+  <div class="sparkle" style="top: 30%; left: 5%; animation-delay: 3.5s;"></div>
+  <div class="sparkle" style="top: 50%; left: 80%; animation-delay: 1.2s;"></div>
+  <div class="sparkle" style="top: 75%; left: 45%; animation-delay: 2.2s;"></div>
+  <div class="sparkle" style="top: 85%; left: 20%; animation-delay: 3.8s;"></div>
+  <div class="sparkle" style="top: 40%; left: 95%; animation-delay: 0.3s;"></div>
+  <div class="sparkle" style="top: 60%; left: 35%; animation-delay: 2.9s;"></div>
+  <div class="sparkle" style="top: 5%; left: 70%; animation-delay: 1.7s;"></div>
+  <header>
+    <h1 id="header-title">오늘의 별자리 운세</h1>
+    <p>클릭 한 번으로 내 별자리운세를 완벽 분석해 드립니다! 궁금증은 깔끔하게 해결하고, 특별한 하루를 지금 시작하세요</p>
+  </header>
+
+  <main class="wrap">
+    <!-- 별자리 선택 -->
+    <section aria-labelledby="signs-title">
+      <h2 id="signs-title" class="sr-only">별자리 선택</h2>
+      <div id="sign-grid" class="grid"></div>
+    </section>
+
+    <!-- 결과 카드 -->
+    <section id="result-card" class="card" aria-live="polite" aria-atomic="true" hidden>
+      <div class="result">
+        <div class="hdr">
+          <div class="who">
+            <div class="ico lg" id="res-ico">♈</div>
+            <div>
+              <div id="res-title" style="font-weight:800; font-size:18px;">양자리</div>
+              <div class="badge" id="res-period">3.21~4.19</div>
+              <div style="font-size:12px; color: var(--muted); margin-top:2px;" id="res-date">2025-08-15</div>
+            </div>
+          </div>
+          <div class="meter" id="res-meter" style="--deg: 180deg" data-val="50"></div>
+        </div>
+
+        <div class="sections">
+          <div class="card" style="padding:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+              <div class="pill">럭키컬러 <span class="chip" id="res-color-chip" style="background: #25D0A9;"></span><span id="res-color-text">터쿠아즈</span></div>
+              <div class="pill">럭키넘버 <strong id="res-number" style="margin-left:6px;">7</strong></div>
+            </div>
+            <div class="kvs">
+              <div class="kv"><h4><span class="kv-icon">💕</span>사랑</h4><p id="res-love">…</p></div>
+              <div class="kv"><h4><span class="kv-icon">💼</span>일</h4><p id="res-work">…</p></div>
+              <div class="kv"><h4><span class="kv-icon">💰</span>금전</h4><p id="res-money">…</p></div>
+              <div class="kv"><h4><span class="kv-icon">🌿</span>건강</h4><p id="res-health">…</p></div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:14px; display:grid; gap:10px;">
+            <div style="font-weight:700;">한 줄 조언</div>
+            <div id="res-tip" style="line-height:1.7;">…</div>
+            <div class="cta">
+              <button class="btn" id="btn-reroll">다시 뽑기</button>
+              <button class="btn ghost" id="btn-share">공유</button>
+              <button class="btn ghost" id="btn-copy-color">럭키컬러 복사</button>
+            </div>
+            <div class="muted">같은 날 같은 별자리는 기본적으로 동일한 결과가 표시됩니다.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> 오늘의 별자리</footer>
+
+</body>
+</html>
