@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { readFileSync } from 'fs';
 
 export default defineConfig({
   // 개발 서버 설정
@@ -49,25 +50,27 @@ export default defineConfig({
       input: {
         'constellation/constellation': 'constellation/constellation.html'
       },
+      external: [],
       output: {
-        // 파일들을 constellation 폴더에 배치
+        // 파일들을 constellation 폴더에 배치 (해시코드 포함)
         entryFileNames: (chunkInfo) => {
           return chunkInfo.name === 'constellation/constellation' 
-            ? 'constellation/horoscope.min.js' 
-            : 'constellation/[name].min.js';
+            ? 'constellation/horoscope-[hash].min.js' 
+            : 'constellation/[name]-[hash].min.js';
         },
-        chunkFileNames: 'constellation/horoscope-data.min.js', 
+        chunkFileNames: 'constellation/[name]-[hash].min.js', 
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'horoscope.css') {
-            return 'constellation/horoscope.min.css';
+            return 'constellation/horoscope-[hash].min.css';
           }
-          return `constellation/[name].[ext]`;
+          if (assetInfo.name === 'horoscope-data.json') {
+            return 'constellation/horoscope-data-[hash].json';
+          }
+          return `constellation/[name]-[hash].[ext]`;
         },
         
-        // 코드 분할
-        manualChunks: {
-          'horoscope-data': ['constellation/horoscope-data.json']
-        }
+        // 코드 분할 (JSON 파일 제외)
+        manualChunks: undefined
       }
     },
     
@@ -82,7 +85,19 @@ export default defineConfig({
   base: './',
   
   // 플러그인
-  plugins: [],
+  plugins: [
+    {
+      name: 'copy-json',
+      generateBundle() {
+        // JSON 파일을 빌드 출력에 포함 (해시코드는 Vite가 자동 생성)
+        this.emitFile({
+          type: 'asset',
+          fileName: 'constellation/horoscope-data.json',
+          source: readFileSync('constellation/horoscope-data.json', 'utf8')
+        });
+      }
+    }
+  ],
   
   // CSS 전처리기 옵션
   css: {

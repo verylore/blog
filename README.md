@@ -54,10 +54,10 @@ blog/
 │   └── horoscope-data.json   # 운세 데이터
 ├── dist/                     # 빌드 결과물 (자동 생성)
 │   └── constellation/
-│       ├── constellation.html    # 최적화된 HTML
-│       ├── horoscope.min.js      # 압축된 JavaScript
-│       ├── horoscope.min.css     # 압축된 CSS
-│       └── horoscope-data.min.js # 압축된 JSON
+│       ├── constellation.html         # 최적화된 HTML
+│       ├── horoscope-[hash].min.js    # 압축된 JavaScript
+│       ├── horoscope-[hash].min.css   # 압축된 CSS
+│       └── horoscope-data-[hash].json # 압축된 JSON
 ├── package.json              # 프로젝트 설정
 ├── vite.config.js           # Vite 설정
 ├── .gitignore               # Git 무시 파일
@@ -76,19 +76,20 @@ Vite 설정(`vite.config.js`)에서 다음과 같은 최적화가 적용됩니�
 ### 성능 최적화
 - ✅ Console.log 제거
 - ✅ 주석 제거  
-- ✅ 파일명 해싱
+- ✅ 파일명 해싱 (캐시 무효화)
 - ✅ 코드 분할
 - ✅ 작은 파일 인라인화
 - ✅ 소스맵 비활성화 (배포용)
+- ✅ 브라우저 캐시 최적화
 
 ## 📦 빌드 결과
 
 빌드 후 `dist/constellation/` 폴더에 생성되는 파일들:
 
 - `constellation.html` - 메인 HTML (최적화됨)
-- `horoscope.min.js` - 압축된 JavaScript
-- `horoscope.min.css` - 압축된 CSS
-- `horoscope-data.min.js` - 압축된 JSON 데이터
+- `horoscope-[hash].min.js` - 압축된 JavaScript (해시코드 포함)
+- `horoscope-[hash].min.css` - 압축된 CSS (해시코드 포함)
+- `horoscope-data-[hash].json` - 압축된 JSON 데이터 (해시코드 포함)
 
 ## 🔧 개발 환경
 
