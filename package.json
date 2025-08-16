@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:constellation": "vite build --mode constellation",
+    "build:fortune": "vite build --mode fortune",
     "preview": "vite preview",
     "serve": "vite preview --port 3000"
   },

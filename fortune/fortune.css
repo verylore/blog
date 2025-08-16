@@ -85,6 +85,12 @@
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); 
   }
   
+  .inside-article {
+    background-color: unset !important;
+  }
+  
+  .site-header {display:none !important;}
+
   .card { 
     border: 1px solid rgba(0,0,0,.08); 
     backdrop-filter: blur(20px);
