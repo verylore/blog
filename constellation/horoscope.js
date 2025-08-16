@@ -173,6 +173,7 @@ const yearEl = document.getElementById('year');
 yearEl.textContent = new Date().getFullYear();
 
 function buildGrid() {
+  console.log('buildGrid 시작', signGrid);
   signGrid.innerHTML = '';
   SIGNS.forEach(s => {
     const card = document.createElement('button');
@@ -186,6 +187,7 @@ function buildGrid() {
     card.addEventListener('click', () => selectSign(s.key));
     signGrid.appendChild(card);
   });
+  console.log('buildGrid 완료, 생성된 카드 수:', signGrid.children.length);
 }
 
 // -----------------------------
@@ -308,9 +310,11 @@ btnCopyColor.addEventListener('click', async () => {
 
 // 초기화: 저장된 오늘 운세가 있으면 복원
 async function init() {
+  console.log('초기화 시작');
   // JSON 데이터 로드 시도
   await loadFortuneData();
   
+  console.log('그리드 생성 시작');
   buildGrid();
   const saved = loadState();
   const today = todayStr();
@@ -318,5 +322,18 @@ async function init() {
     current = saved.result;
     render(saved.result);
   }
+  console.log('초기화 완료');
 }
-init();
+
+// DOM이 완전히 로드된 후 실행
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOMContentLoaded 이벤트 발생');
+  init();
+});
+
+// 혹시 모를 경우를 대비해 바로 실행도 추가
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
