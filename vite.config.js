@@ -85,16 +85,58 @@ export default defineConfig({
   // 플러그인
   plugins: [
     {
-      name: 'copy-json',
+      name: 'copy-json-with-manifest',
       generateBundle() {
         // JSON 파일을 빌드 출력에 포함 (해시코드 생성)
         const jsonContent = readFileSync('constellation/horoscope-data.json', 'utf8');
         const hash = createHash('md5').update(jsonContent).digest('hex').slice(0, 8);
+        const hashedFileName = `horoscope-data-${hash}.json`;
+        
+        // JSON 파일 생성
+        this.emitFile({
+          type: 'asset',
+          fileName: `constellation/${hashedFileName}`,
+          source: jsonContent
+        });
+        
+        // 매니페스트 파일 생성 (파일명 매핑 정보 + 타임스탬프)
+        const timestamp = Date.now();
+        const manifest = {
+          "horoscope-data.json": hashedFileName,
+          "timestamp": timestamp,
+          "version": hash // JSON 해시를 버전으로 사용
+        };
+        
+        // 매니페스트 파일도 해시 포함
+        const manifestContent = JSON.stringify(manifest, null, 2);
+        const manifestHash = createHash('md5').update(manifestContent).digest('hex').slice(0, 8);
         
         this.emitFile({
           type: 'asset',
-          fileName: `constellation/horoscope-data-${hash}.json`,
-          source: jsonContent
+          fileName: `constellation/manifest-${manifestHash}.json`,
+          source: manifestContent
+        });
+        
+                      // 타임스탬프를 파일명에 직접 포함하여 완전한 캐시 무효화
+              const manifestInfo = {
+                "manifest": `manifest-${manifestHash}.json`,
+                "data": hashedFileName,
+                "timestamp": timestamp,
+                "version": manifestHash
+              };
+              
+              // 타임스탬프를 파일명에 포함하여 고정 파일 제거
+              this.emitFile({
+                type: 'asset',
+                fileName: `constellation/build-${timestamp}.json`,
+                source: JSON.stringify(manifestInfo, null, 2)
+              });
+        
+        // 현재 빌드의 타임스탬프를 기록하는 간단한 텍스트 파일
+        this.emitFile({
+          type: 'asset',
+          fileName: 'constellation/build-timestamp.txt',
+          source: timestamp.toString()
         });
       }
     }

@@ -72,7 +72,59 @@ let POOL = {
 // JSON 데이터 로드 함수
 async function loadFortuneData() {
   try {
-    const response = await fetch('horoscope-data.json');
+    // CDN URL 설정 (환경에 따라 변경)
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const CDN_BASE_URL = isLocal
+      ? './' // 로컬 개발 시
+      : 'https://cdn.jsdelivr.net/gh/verylore/blog/dist/constellation/'; // 배포 시
+    
+    let jsonFileName = 'horoscope-data.json';
+    
+    // build-timestamp.txt에서 최신 타임스탬프를 가져와서 build-{timestamp}.json 로드
+    try {
+      // 1단계: build-timestamp.txt에서 최신 빌드 타임스탬프 확인
+      const timestampResponse = await fetch(CDN_BASE_URL + 'build-timestamp.txt');
+      
+      if (timestampResponse.ok) {
+        const buildTimestamp = await timestampResponse.text();
+        const buildFileName = `build-${buildTimestamp.trim()}.json`;
+        
+        console.log('최신 빌드 파일:', buildFileName);
+        
+        // 2단계: build-{timestamp}.json 로드 (타임스탬프가 달라서 캐시 무효화됨)
+        const buildResponse = await fetch(CDN_BASE_URL + buildFileName);
+        
+        if (buildResponse.ok) {
+          const buildInfo = await buildResponse.json();
+          const manifestFileName = buildInfo.manifest;
+          
+          // 3단계: manifest-{hash}.json 로드 (해시 포함이므로 캐시 무효화됨)
+          const manifestResponse = await fetch(CDN_BASE_URL + manifestFileName);
+          
+          if (manifestResponse.ok) {
+            const manifest = await manifestResponse.json();
+            jsonFileName = manifest['horoscope-data.json'] || jsonFileName;
+            console.log('빌드 정보 로드 성공:', {
+              buildFile: buildFileName,
+              manifest: manifestFileName,
+              version: buildInfo.version,
+              timestamp: new Date(buildInfo.timestamp).toLocaleString(),
+              jsonFile: jsonFileName
+            });
+          } else {
+            console.warn('매니페스트 파일 로드 실패:', manifestResponse.status);
+          }
+        } else {
+          console.warn('빌드 파일 로드 실패:', buildResponse.status);
+        }
+      } else {
+        console.warn('빌드 타임스탬프 로드 실패, 기본 파일명 사용');
+      }
+    } catch (manifestError) {
+      console.warn('매니페스트 로드 완전 실패, 기본 파일명 사용:', manifestError);
+    }
+    
+    const response = await fetch(CDN_BASE_URL + jsonFileName);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
