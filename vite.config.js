@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { readFileSync } from 'fs';
+import { createHash } from 'crypto';
 
 export default defineConfig({
   // 개발 서버 설정
@@ -63,9 +64,6 @@ export default defineConfig({
           if (assetInfo.name === 'horoscope.css') {
             return 'constellation/horoscope-[hash].min.css';
           }
-          if (assetInfo.name === 'horoscope-data.json') {
-            return 'constellation/horoscope-data-[hash].json';
-          }
           return `constellation/[name]-[hash].[ext]`;
         },
         
@@ -89,11 +87,14 @@ export default defineConfig({
     {
       name: 'copy-json',
       generateBundle() {
-        // JSON 파일을 빌드 출력에 포함 (해시코드는 Vite가 자동 생성)
+        // JSON 파일을 빌드 출력에 포함 (해시코드 생성)
+        const jsonContent = readFileSync('constellation/horoscope-data.json', 'utf8');
+        const hash = createHash('md5').update(jsonContent).digest('hex').slice(0, 8);
+        
         this.emitFile({
           type: 'asset',
-          fileName: 'constellation/horoscope-data.json',
-          source: readFileSync('constellation/horoscope-data.json', 'utf8')
+          fileName: `constellation/horoscope-data-${hash}.json`,
+          source: jsonContent
         });
       }
     }
