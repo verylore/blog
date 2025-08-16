@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { readFileSync, existsSync, renameSync } from 'fs';
+import { readFileSync, existsSync, renameSync, rmSync } from 'fs';
 import { createHash } from 'crypto';
 import path from 'path';
 import { minify } from 'html-minifier-terser';
@@ -70,8 +70,8 @@ export default defineConfig(({ mode }) => {
       // 청크 크기 경고 임계값
       chunkSizeWarningLimit: 1000,
       
-      // 빌드 시 기존 파일 정리
-      emptyOutDir: true,
+      // 빌드 시 기존 파일 정리 (선택적 빌드 시 해당 폴더만 정리)
+      emptyOutDir: buildTarget === 'all',
       
       // 롤업 옵션
       rollupOptions: {
@@ -98,11 +98,20 @@ export default defineConfig(({ mode }) => {
               return 'fortune/fortune.html';
             }
             
-            // CSS 파일은 빌드 후 수동으로 이동하거나 각 폴더에 배치
+            // CSS 파일을 각 폴더에 배치
             if (name === 'horoscope.css') {
               return 'constellation/horoscope-[hash].min.css';
             } else if (name === 'fortune.css') {
               return 'fortune/fortune-[hash].min.css';
+            }
+            
+            // 기타 CSS 파일들도 적절한 폴더에 배치
+            if (name.endsWith('.css')) {
+              if (name.includes('constellation') || name.includes('horoscope')) {
+                return 'constellation/[name]-[hash].min.css';
+              } else if (name.includes('fortune')) {
+                return 'fortune/[name]-[hash].min.css';
+              }
             }
             
             return `[name]-[hash].[ext]`;
@@ -124,15 +133,31 @@ export default defineConfig(({ mode }) => {
     publicDir: 'public',
     
     // 베이스 경로
-    base: './',
+    base: '',
     
     // 플러그인
     plugins: [
+      // 선택적 빌드 시 해당 폴더만 정리하는 플러그인
+      {
+        name: 'selective-cleanup',
+        buildStart() {
+          if (buildTarget !== 'all') {
+            const targetDir = path.resolve('dist', buildTarget);
+            if (existsSync(targetDir)) {
+              console.log(`🧹 Cleaning up ${buildTarget} directory...`);
+              rmSync(targetDir, { recursive: true, force: true });
+            }
+          }
+        }
+      },
       {
         name: 'html-minifier',
         transformIndexHtml: {
           order: 'post',
           handler: async (html, ctx) => {
+            // 경로 수정: ../constellation/ -> ./
+            let modifiedHtml = html.replace(/\.\.\/constellation\//g, './');
+            
             // HTML 압축 옵션
             const minifyOptions = {
               collapseWhitespace: true,        // 공백 제거
@@ -155,13 +180,13 @@ export default defineConfig(({ mode }) => {
             
             try {
               // html-minifier-terser를 사용한 HTML 압축
-              const minifiedHtml = await minify(html, minifyOptions);
+              const minifiedHtml = await minify(modifiedHtml, minifyOptions);
               return minifiedHtml;
             } catch (error) {
               console.warn('HTML minification failed, using fallback:', error.message);
               
               // 폴백: 간단한 HTML 압축
-              return html
+              return modifiedHtml
                 .replace(/\s+/g, ' ')           // 연속된 공백을 하나로
                 .replace(/>\s+</g, '><')        // 태그 간 공백 제거
                 .replace(/\s+>/g, '>')          // 태그 앞 공백 제거

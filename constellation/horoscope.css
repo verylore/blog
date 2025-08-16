@@ -66,6 +66,104 @@
   }
 }
 
+/* 랜덤 별들 */
+.random-star {
+  position: fixed;
+  background: #ffffff;
+  border-radius: 50%;
+  z-index: -2;
+  animation: randomStarTwinkle 6s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.4;
+  transition: all 0.8s ease;
+}
+
+.random-star:hover {
+  opacity: 0.8;
+  transform: scale(1.3);
+}
+
+/* 랜덤 별 크기별 스타일 */
+.random-star.star-large {
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+}
+
+.random-star.star-medium {
+  width: 8px;
+  height: 8px;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.8);
+}
+
+.random-star.star-small {
+  width: 5px;
+  height: 5px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.random-star::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: randomStarGlow 4s ease-in-out infinite;
+}
+
+.random-star.star-large::before {
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%);
+}
+
+.random-star.star-medium::before {
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+}
+
+.random-star.star-small::before {
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+}
+
+@keyframes randomStarTwinkle {
+  0%, 100% { 
+    opacity: 0.4; 
+    transform: scale(1);
+  }
+  25% { 
+    opacity: 0.7; 
+    transform: scale(1.1);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.3);
+  }
+  75% { 
+    opacity: 0.6; 
+    transform: scale(1.15);
+  }
+}
+
+@keyframes randomStarGlow {
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+}
+
+
+
+
 /* 호버 효과 및 글로우 */
 .card:hover {
   transform: translateY(-2px);
