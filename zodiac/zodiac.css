@@ -585,3 +585,75 @@ footer {
     box-shadow: var(--shadow), 0 0 20px rgba(37, 208, 169, 0.3);
   }
 }
+
+/* 푸터 링크 버튼 스타일 */
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent), #25d0a9);
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(37, 208, 169, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-link-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: 0;
+}
+
+.footer-link-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.footer-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 208, 169, 0.4);
+}
+
+.footer-link-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.link-icon {
+  font-size: 16px;
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.05) rotate(5deg); }
+}
+
+.footer-copyright {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
